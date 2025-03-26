@@ -1,0 +1,211 @@
+<div class="p-4">
+  <div class="mb-4 flex items-center space-x-4">
+    <label class="flex items-center text-gray-700 font-medium">
+      Start Period:
+      <select [(ngModel)]="selectedStartMonth" (ngModelChange)="updateDateRangeFromDropdown()"
+        class="border rounded p-1 ml-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+        @for (month of availableMonths; track month) {
+        <option [value]="month.value">{{ month.label }}</option>
+        }
+      </select>
+    </label>
+    <label class="flex items-center text-gray-700 font-medium">
+      End Period:
+      <select [(ngModel)]="selectedEndMonth" (ngModelChange)="updateDateRangeFromDropdown()"
+        class="border rounded p-1 ml-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+        @for (month of availableMonths; track month) {
+        <option [value]="month.value">{{ month.label }}</option>
+        }
+      </select>
+    </label>
+  </div>
+
+  <table class="w-full border-collapse">
+    <thead>
+      <tr class="bg-gray-100">
+        <th class="border p-2 text-left text-gray-700 font-semibold">Category</th>
+        @for (month of service.months(); track month) {
+        <th class="border p-2 text-center text-gray-700 font-semibold">{{ month }}</th>
+        }
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Income -->
+      <tr>
+        <td class="font-bold border p-2 text-gray-800 bg-gray-50">Income</td>
+        @for (month of service.months(); track month) {
+        <td class="border p-2 bg-gray-50"></td>
+        }
+      </tr>
+      @for (cat of service.incomeCategories(); track $index; let i = $index) {
+      <tr>
+        <td class="border p-2">
+          <input type="text" [(ngModel)]="cat.name">
+          <button (click)="service.deleteCategory('income', i)"
+            class="text-red-500 ml-2 hover:text-red-700">Delete</button>
+        </td>
+        @for (val of cat.values(); track $index; let j = $index) {
+        <td class="border p-2">
+          @if (i === 0 && j === 0) {
+          <input type="number" [(ngModel)]="cat.values()[j]" (ngModelChange)="updateValues(cat, j, $event)"
+            (keydown)="onKeyDown($event, cat, j, $event.target, getRowIndex(i), false, i)"
+            (contextmenu)="onRightClick($event, cat, j)" [attr.data-row]="getRowIndex(i)" [attr.data-col]="j"
+            #firstInput class="w-full p-1 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+          } @else {
+          <input type="number" [(ngModel)]="cat.values()[j]" (ngModelChange)="updateValues(cat, j, $event)"
+            (keydown)="onKeyDown($event, cat, j, $event.target, getRowIndex(i), false, i)"
+            (contextmenu)="onRightClick($event, cat, j)" [attr.data-row]="getRowIndex(i)" [attr.data-col]="j"
+            class="w-full p-1 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+          }
+        </td>
+        }
+      </tr>
+      @for (sub of cat.subcategories; track $index; let k = $index) {
+      <tr>
+        <td class="border p-2 pl-6 text-gray-600">
+          <input type="text" [(ngModel)]="sub.name">
+          <button (click)="service.deleteSubcategory(cat, k)"
+            class="text-red-500 ml-2 hover:text-red-700">Delete</button>
+        </td>
+        @for (val of sub.values(); track $index; let j = $index) {
+        <td class="border p-2">
+          <input type="number" [(ngModel)]="sub.values()[j]" (ngModelChange)="updateValues(sub, j, $event)"
+            (keydown)="onKeyDown($event, cat, j, $event.target, getRowIndex(i, k, true), true, i)"
+            (contextmenu)="onRightClick($event, sub, j)" [attr.data-row]="getRowIndex(i, k, true)" [attr.data-col]="j"
+            class="w-full p-1 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </td>
+        }
+      </tr>
+      }
+      <tr class="bg-gray-200 font-semibold">
+        <td class="border p-2 text-gray-700">Sub Total</td>
+        @for (total of cat.total(); track $index) {
+        <td class="border p-2 text-gray-700">{{ total }}</td>
+        }
+      </tr>
+      }
+      <tr>
+        <td class="border p-2">
+          <button (click)="service.addParentCategory('income', 'New Income Category')"
+            class="text-blue-500 hover:text-blue-700 flex items-center">
+            <span class="mr-1">+</span> Add New Parent Category
+          </button>
+        </td>
+        @for (month of service.months(); track month) {
+        <td class="border p-2"></td>
+        }
+      </tr>
+      <tr class="bg-gray-300 font-bold">
+        <td class="border p-2 text-gray-800">Income Total</td>
+        @for (total of service.incomeTotal(); track $index) {
+        <td class="border p-2 text-gray-800">{{ total }}</td>
+        }
+      </tr>
+
+      <!-- Expenses -->
+      <tr>
+        <td class="font-bold border p-2 text-gray-800 bg-gray-50">Expenses</td>
+        @for (month of service.months(); track month) {
+        <td class="border p-2 bg-gray-50"></td>
+        }
+      </tr>
+      @for (cat of service.expenseCategories(); track $index; let i = $index) {
+      <tr>
+        <td class="border p-2">
+          <input type="text" [(ngModel)]="cat.name">
+          <button (click)="service.deleteCategory('expense', i)"
+            class="text-red-500 ml-2 hover:text-red-700">Delete</button>
+        </td>
+        @for (val of cat.values(); track $index; let j = $index) {
+        <td class="border p-2">
+          <input type="number" [(ngModel)]="cat.values()[j]" (ngModelChange)="updateValues(cat, j, $event)"
+            (keydown)="onKeyDown($event, cat, j, $event.target, getRowIndex(i + service.incomeCategories().length), false, i)"
+            (contextmenu)="onRightClick($event, cat, j)"
+            [attr.data-row]="getRowIndex(i + service.incomeCategories().length)" [attr.data-col]="j"
+            class="w-full p-1 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </td>
+        }
+      </tr>
+      @for (sub of cat.subcategories; track $index; let k = $index) {
+      <tr>
+        <td class="border p-2 pl-6 text-gray-600">
+          <input type="text" [(ngModel)]="sub.name">
+          <button (click)="service.deleteSubcategory(cat, k)"
+            class="text-red-500 ml-2 hover:text-red-700">Delete</button>
+        </td>
+        @for (val of sub.values(); track $index; let j = $index) {
+        <td class="border p-2">
+          <input type="number" [(ngModel)]="sub.values()[j]" (ngModelChange)="updateValues(sub, j, $event)"
+            (keydown)="onKeyDown($event, cat, j, $event.target, getRowIndex(i + service.incomeCategories().length, k, true), true, i)"
+            (contextmenu)="onRightClick($event, sub, j)"
+            [attr.data-row]="getRowIndex(i + service.incomeCategories().length, k, true)" [attr.data-col]="j"
+            class="w-full p-1 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </td>
+        }
+      </tr>
+      }
+      <tr class="bg-gray-200 font-semibold">
+        <td class="border p-2 text-gray-700">Sub Total</td>
+        @for (total of cat.total(); track $index) {
+        <td class="border p-2 text-gray-700">{{ total }}</td>
+        }
+      </tr>
+      }
+      <tr>
+        <td class="border p-2">
+          <button (click)="service.addParentCategory('expense', 'New Expense Category')"
+            class="text-blue-500 hover:text-blue-700 flex items-center">
+            <span class="mr-1">+</span> Add New Parent Category
+          </button>
+        </td>
+        @for (month of service.months(); track month) {
+        <td class="border p-2"></td>
+        }
+      </tr>
+      <tr class="bg-gray-300 font-bold">
+        <td class="border p-2 text-gray-800">Total Expenses</td>
+        @for (total of service.expenseTotal(); track $index) {
+        <td class="border p-2 text-gray-800">{{ total }}</td>
+        }
+      </tr>
+
+      <!-- Totals -->
+      <tr class="bg-gray-300 font-bold">
+        <td class="border p-2 text-gray-800">Profit / Loss</td>
+        @for (pl of service.profitLoss(); track $index) {
+        <td class="border p-2 text-gray-800">{{ pl === 0 ? '' : pl }}</td>
+        }
+      </tr>
+      <tr class="bg-gray-300 font-bold">
+        <td class="border p-2 text-gray-800">Opening Balance</td>
+        @for (bal of service.openingBalance(); track $index) {
+        <td class="border p-2 text-gray-800">{{ bal }}</td>
+        }
+      </tr>
+      <tr class="bg-gray-300 font-bold">
+        <td class="border p-2 text-gray-800">Closing Balance</td>
+        @for (bal of service.closingBalance(); track $index) {
+        <td class="border p-2 text-gray-800">{{ bal }}</td>
+        }
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="mt-4 flex space-x-4">
+    <button (click)="service.addParentCategory('income', 'New Income Category')"
+      class="text-blue-500 hover:text-blue-700 flex items-center">
+      <span class="mr-1">+</span> Add Income Category
+    </button>
+    <button (click)="service.addParentCategory('expense', 'New Expense Category')"
+      class="text-blue-500 hover:text-blue-700 flex items-center">
+      <span class="mr-1">+</span> Add Expense Category
+    </button>
+  </div>
+
+  @if (showContextMenu) {
+  <div (click)="closeContextMenu()" class="fixed bg-gray-800 text-white p-2 rounded shadow-lg"
+    [style.left.px]="contextMenuX" [style.top.px]="contextMenuY">
+    <button (click)="applyToAll()" class="hover:bg-gray-700 w-full text-left p-1 rounded">Apply to all</button>
+  </div>
+  }
+</div>
