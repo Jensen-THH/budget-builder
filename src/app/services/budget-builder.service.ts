@@ -127,8 +127,6 @@ export class BudgetBuilderService {
         const monthCount = this.months().length;
         const newSubcategory = new Category(name, monthCount);
         parent.subcategories = [...parent.subcategories, newSubcategory];
-        this.incomeCategories.update(cats => [...cats]);
-        this.expenseCategories.update(cats => [...cats]);
     }
 
     deleteCategory(type: 'income' | 'expense', index: number) {

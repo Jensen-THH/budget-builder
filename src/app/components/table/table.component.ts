@@ -18,8 +18,8 @@ export class TableComponent {
   selectedCategory!: Category;
   selectedMonthIndex!: number;
 
-  selectedStartMonth: string = this.getFirstMonthOfCurrentYear();
-  selectedEndMonth: string = this.getCurrentYearMonth();
+  selectedStartMonth: string = this.getMonthOfCurrentYear('01');
+  selectedEndMonth: string = this.getMonthOfCurrentYear('12');
   availableMonths: { label: string; value: string }[] = this.generateAvailableMonths();
 
   constructor(public service: BudgetBuilderService, private cdr: ChangeDetectorRef) { }
@@ -34,9 +34,9 @@ export class TableComponent {
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
   }
 
-  private getFirstMonthOfCurrentYear(): string {
+  private getMonthOfCurrentYear(month: string): string {
     const now = new Date();
-    return `${now.getFullYear()}-01`;
+    return `${now.getFullYear()}-${month}`;
   }
 
   private generateAvailableMonths(): { label: string; value: string }[] {
