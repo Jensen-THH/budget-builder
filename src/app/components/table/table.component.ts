@@ -207,6 +207,7 @@ export class TableComponent {
     cat.values.update(values => {
       const newValues = [...values];
       newValues[index] = parsedValue;
+      return newValues;
     });
   }
 }
