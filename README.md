@@ -16,6 +16,9 @@ This project implements a basic Budget Builder table using Angular 19, RxJS, Sig
 *   **Delete Row Functionality:** Users can delete rows from the budget table.
 *   **Clean and Lightweight Code:** The codebase is designed to be lightweight and maintainable.
 
+## Screenshot
+![Screenshot](./public/imgScreenshot.png)
+
 ## Technologies Used
 
 *   **Angular:** 19.0.0
