@@ -10,16 +10,15 @@ export class Category {
         this.name = name;
         this.values.set(new Array(monthCount).fill(0));
         this.total = computed(() => {
-            
             const values = this.values();
             const totals = values.slice();
             this.subcategories.forEach(sub => {
+                const subValues = sub.values();
                 const subTotals = sub.total();
                 for (let i = 0; i < totals.length; i++) {
-                    totals[i] += subTotals[i];
+                    totals[i] += subTotals[i] || 0;
                 }
             });
-            console.log(totals);
             return totals;
         });
     }
@@ -127,6 +126,7 @@ export class BudgetBuilderService {
         const monthCount = this.months().length;
         const newSubcategory = new Category(name, monthCount);
         parent.subcategories = [...parent.subcategories, newSubcategory];
+        this._trigger_change();
     }
 
     deleteCategory(type: 'income' | 'expense', index: number) {
@@ -139,5 +139,11 @@ export class BudgetBuilderService {
 
     deleteSubcategory(parent: Category, index: number) {
         parent.subcategories = parent.subcategories.filter((_, i) => i !== index);
+        this._trigger_change();
+    }
+
+    _trigger_change() {
+        this.incomeCategories.update(cats => [...cats]);
+        this.expenseCategories.update(cats => [...cats]);
     }
 }

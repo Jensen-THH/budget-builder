@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild, ChangeDetectorRef } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { BudgetBuilderService, Category } from '../../services/budget-builder.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -22,7 +22,7 @@ export class TableComponent {
   selectedEndMonth: string = this.getMonthOfCurrentYear('12');
   availableMonths: { label: string; value: string }[] = this.generateAvailableMonths();
 
-  constructor(public service: BudgetBuilderService, private cdr: ChangeDetectorRef) { }
+  constructor(public service: BudgetBuilderService) {}
 
   ngAfterViewInit() {
     this.firstInput?.nativeElement.focus();
@@ -68,7 +68,6 @@ export class TableComponent {
     } else {
       this.service.updateDateRange(startDate, endDate);
     }
-    this.cdr.detectChanges();
   }
 
   getRowIndex(parentIdx: number, subIdx?: number, isSubcategory: boolean = false): number {
@@ -124,9 +123,7 @@ export class TableComponent {
 
     switch (event.key) {
       case 'Enter':
-       
         this.service.addSubcategory(cat, `New Subcategory`);
-        this.cdr.detectChanges();
         setTimeout(() => {
           const newInputs = Array.from(document.querySelectorAll('input[data-row][data-col]')) as HTMLInputElement[];
           this.focusNextRow(newInputs, currentRow + 1, 0);
@@ -199,7 +196,6 @@ export class TableComponent {
       return newValues;
     });
     this.showContextMenu = false;
-    this.cdr.detectChanges();
   }
 
   closeContextMenu() {
@@ -207,8 +203,10 @@ export class TableComponent {
   }
 
   updateValues(cat: Category, index: number, value: number) {
-    const newValues = cat.values().slice();
-    newValues[index] = value;
-    cat.values.set(newValues);
+    const parsedValue = isNaN(value) ? 0 : value; 
+    cat.values.update(values => {
+      const newValues = [...values];
+      newValues[index] = parsedValue;
+    });
   }
 }
