@@ -1,19 +1,19 @@
-import { Injectable, Signal, computed, signal } from '@angular/core';
+import { Injectable, Signal, computed, effect, signal } from '@angular/core';
 
 export class Category {
-    name: string;
+    name = signal<string>('');
     values = signal<number[]>([]);
-    subcategories: Category[] = [];
+    subcategories = signal<Category[]>([]);
     total: Signal<number[]>;
 
     constructor(name: string, monthCount: number) {
-        this.name = name;
+        this.name.set(name);
         this.values.set(new Array(monthCount).fill(0));
         this.total = computed(() => {
             const values = this.values();
             const totals = values.slice();
-            this.subcategories.forEach(sub => {
-                const subValues = sub.values();
+            const subs = this.subcategories();
+            subs.forEach(sub => {
                 const subTotals = sub.total();
                 for (let i = 0; i < totals.length; i++) {
                     totals[i] += subTotals[i] || 0;
@@ -109,7 +109,7 @@ export class BudgetBuilderService {
             newValues[i] = current[i];
         }
         category.values.set(newValues);
-        category.subcategories.forEach(sub => this.resizeValues(sub, monthCount));
+        category.subcategories().forEach(sub => this.resizeValues(sub, monthCount));
     }
 
     addParentCategory(type: 'income' | 'expense', name: string) {
@@ -125,8 +125,7 @@ export class BudgetBuilderService {
     addSubcategory(parent: Category, name: string) {
         const monthCount = this.months().length;
         const newSubcategory = new Category(name, monthCount);
-        parent.subcategories = [...parent.subcategories, newSubcategory];
-        this._trigger_change();
+        parent.subcategories.update(subs => [...subs, newSubcategory]);
     }
 
     deleteCategory(type: 'income' | 'expense', index: number) {
@@ -138,12 +137,6 @@ export class BudgetBuilderService {
     }
 
     deleteSubcategory(parent: Category, index: number) {
-        parent.subcategories = parent.subcategories.filter((_, i) => i !== index);
-        this._trigger_change();
-    }
-
-    _trigger_change() {
-        this.incomeCategories.update(cats => [...cats]);
-        this.expenseCategories.update(cats => [...cats]);
+        parent.subcategories.update(subs => subs.filter((_, i) => i !== index));
     }
 }

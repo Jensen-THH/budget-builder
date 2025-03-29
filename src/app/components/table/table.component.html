@@ -60,7 +60,7 @@
         </td>
         }
       </tr>
-      @for (sub of cat.subcategories; track $index; let k = $index) {
+      @for (sub of cat.subcategories(); track $index; let k = $index) {
       <tr>
         <td class="border p-2 pl-6 text-gray-600">
           <input type="text" [(ngModel)]="sub.name">
@@ -126,7 +126,7 @@
         </td>
         }
       </tr>
-      @for (sub of cat.subcategories; track $index; let k = $index) {
+      @for (sub of cat.subcategories(); track $index; let k = $index) {
       <tr>
         <td class="border p-2 pl-6 text-gray-600">
           <input type="text" [(ngModel)]="sub.name">
