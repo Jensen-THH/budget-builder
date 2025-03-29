@@ -102,10 +102,10 @@ export class TableComponent {
   onKeyDown(
     event: KeyboardEvent,
     cat: Category,
-    monthIdx: number,
+    // monthIdx: number,
     target: EventTarget | null,
-    rowIdx: number,
-    isSubcategory: boolean = false,
+    // rowIdx: number,
+    // isSubcategory: boolean = false,
     parentIdx?: number
   ) {
     if (!target || !(target instanceof HTMLInputElement) || parentIdx === undefined) return;

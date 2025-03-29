@@ -48,12 +48,12 @@
         <td class="border p-2">
           @if (i === 0 && j === 0) {
           <input type="number" [(ngModel)]="cat.values()[j]" (ngModelChange)="updateValues(cat, j, $event)"
-            (keydown)="onKeyDown($event, cat, j, $event.target, getRowIndex(i), false, i)"
+            (keydown)="onKeyDown($event, cat, $event.target, i)"
             (contextmenu)="onRightClick($event, cat, j)" [attr.data-row]="getRowIndex(i)" [attr.data-col]="j"
             #firstInput class="w-full p-1 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
           } @else {
           <input type="number" [(ngModel)]="cat.values()[j]" (ngModelChange)="updateValues(cat, j, $event)"
-            (keydown)="onKeyDown($event, cat, j, $event.target, getRowIndex(i), false, i)"
+            (keydown)="onKeyDown($event, cat, $event.target, i)"
             (contextmenu)="onRightClick($event, cat, j)" [attr.data-row]="getRowIndex(i)" [attr.data-col]="j"
             class="w-full p-1 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
           }
@@ -70,7 +70,7 @@
         @for (val of sub.values(); track $index; let j = $index) {
         <td class="border p-2">
           <input type="number" [(ngModel)]="sub.values()[j]" (ngModelChange)="updateValues(sub, j, $event)"
-            (keydown)="onKeyDown($event, cat, j, $event.target, getRowIndex(i, k, true), true, i)"
+            (keydown)="onKeyDown($event, cat, $event.target, i)"
             (contextmenu)="onRightClick($event, sub, j)" [attr.data-row]="getRowIndex(i, k, true)" [attr.data-col]="j"
             class="w-full p-1 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
         </td>
@@ -119,7 +119,7 @@
         @for (val of cat.values(); track $index; let j = $index) {
         <td class="border p-2">
           <input type="number" [(ngModel)]="cat.values()[j]" (ngModelChange)="updateValues(cat, j, $event)"
-            (keydown)="onKeyDown($event, cat, j, $event.target, getRowIndex(i + service.incomeCategories().length), false, i)"
+            (keydown)="onKeyDown($event, cat, $event.target, i)"
             (contextmenu)="onRightClick($event, cat, j)"
             [attr.data-row]="getRowIndex(i + service.incomeCategories().length)" [attr.data-col]="j"
             class="w-full p-1 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -136,7 +136,7 @@
         @for (val of sub.values(); track $index; let j = $index) {
         <td class="border p-2">
           <input type="number" [(ngModel)]="sub.values()[j]" (ngModelChange)="updateValues(sub, j, $event)"
-            (keydown)="onKeyDown($event, cat, j, $event.target, getRowIndex(i + service.incomeCategories().length, k, true), true, i)"
+            (keydown)="onKeyDown($event, cat, $event.target, i)"
             (contextmenu)="onRightClick($event, sub, j)"
             [attr.data-row]="getRowIndex(i + service.incomeCategories().length, k, true)" [attr.data-col]="j"
             class="w-full p-1 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
