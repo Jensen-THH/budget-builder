@@ -192,20 +192,20 @@
       <!-- Totals -->
       <tr class="bg-gray-300 font-bold">
         <td class="border p-2 text-gray-800">Profit / Loss</td>
-        @for (pl of service.profitLoss(); track $index) {
-        <td class="border p-2 text-gray-800">{{ pl === 0 ? '' : pl }}</td>
+        @for (pl of profitLoss$ | async; track $index) {
+          <td class="border p-2 text-gray-800">{{ pl === 0 ? '' : pl }}</td>
         }
       </tr>
       <tr class="bg-gray-300 font-bold">
         <td class="border p-2 text-gray-800">Opening Balance</td>
-        @for (bal of service.openingBalance(); track $index) {
-        <td class="border p-2 text-gray-800">{{ bal }}</td>
+        @for (bal of openingBalance$ | async; track $index) {
+          <td class="border p-2 text-gray-800">{{ bal }}</td>
         }
       </tr>
       <tr class="bg-gray-300 font-bold">
         <td class="border p-2 text-gray-800">Closing Balance</td>
-        @for (bal of service.closingBalance(); track $index) {
-        <td class="border p-2 text-gray-800">{{ bal }}</td>
+        @for (bal of closingBalance$ | async; track $index) {
+          <td class="border p-2 text-gray-800">{{ bal }}</td>
         }
       </tr>
     </tbody>

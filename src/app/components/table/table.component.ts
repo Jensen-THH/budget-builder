@@ -1,14 +1,18 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+
+
+// table.component.ts
+import { Component, ElementRef, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { BudgetBuilderService, Category } from '../../services/budget-builder.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { AsyncPipe } from '@angular/common';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-table',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, AsyncPipe],
   templateUrl: './table.component.html',
-  styleUrls: ['./table.component.css'],
 })
 export class TableComponent {
   @ViewChild('firstInput') firstInput?: ElementRef<HTMLInputElement>;
@@ -22,7 +26,18 @@ export class TableComponent {
   selectedEndMonth: string = this.getMonthOfCurrentYear('12');
   availableMonths: { label: string; value: string }[] = this.generateAvailableMonths();
 
-  constructor(public service: BudgetBuilderService) {}
+  profitLoss$: Observable<number[]>;
+  openingBalance$: Observable<number[]>;
+  closingBalance$: Observable<number[]>;
+
+  constructor(
+    public service: BudgetBuilderService,
+    private cdr: ChangeDetectorRef
+  ) {
+    this.profitLoss$ = this.service.profitLoss$;
+    this.openingBalance$ = this.service.openingBalance$;
+    this.closingBalance$ = this.service.closingBalance$;
+  }
 
   ngAfterViewInit() {
     this.firstInput?.nativeElement.focus();
@@ -68,8 +83,40 @@ export class TableComponent {
     } else {
       this.service.updateDateRange(startDate, endDate);
     }
+    this.cdr.detectChanges();
   }
 
+  updateValues(cat: Category, index: number, value: number) {
+    this.service.updateCategoryValues(cat, index, value);
+    this.cdr.detectChanges();
+  }
+
+  onRightClick(event: MouseEvent, cat: Category, monthIdx: number) {
+    event.preventDefault();
+    this.showContextMenu = true;
+    this.contextMenuX = event.clientX;
+    this.contextMenuY = event.clientY;
+    this.selectedCategory = cat;
+    this.selectedMonthIndex = monthIdx;
+  }
+
+  applyToAll() {
+    const value = this.selectedCategory.values()[this.selectedMonthIndex];
+    this.selectedCategory.values.update(values => {
+      const newValues = values.slice();
+      newValues.fill(value);
+      return newValues;
+    });
+    this.service.triggerUpdate();
+    this.showContextMenu = false;
+    this.cdr.detectChanges();
+  }
+
+  closeContextMenu() {
+    this.showContextMenu = false;
+  }
+
+  // Keep other methods like onKeyDown, getRowIndex, etc.
   getRowIndex(parentIdx: number, subIdx?: number, isSubcategory: boolean = false): number {
     let rowIndex = 0;
     const incomeCats = this.service.incomeCategories();
@@ -77,19 +124,19 @@ export class TableComponent {
     if (parentIdx < incomeCats.length) {
       for (let i = 0; i < incomeCats.length; i++) {
         if (i < parentIdx) {
-          rowIndex += 1 + incomeCats[i].subcategories.length;
+          rowIndex += 1 + incomeCats[i].subcategories().length;
         } else if (i === parentIdx) {
           rowIndex += isSubcategory && subIdx !== undefined ? subIdx + 1 : 0;
           break;
         }
       }
     } else {
-      const incomeRows = incomeCats.reduce((sum, cat) => sum + 1 + cat.subcategories.length, 0);
+      const incomeRows = incomeCats.reduce((sum, cat) => sum + 1 + cat.subcategories().length, 0);
       const expenseIdx = parentIdx - incomeCats.length;
       const expenseCats = this.service.expenseCategories();
       for (let i = 0; i < expenseCats.length; i++) {
         if (i < expenseIdx) {
-          rowIndex += 1 + expenseCats[i].subcategories.length;
+          rowIndex += 1 + expenseCats[i].subcategories().length;
         } else if (i === expenseIdx) {
           rowIndex += incomeRows + (isSubcategory && subIdx !== undefined ? subIdx + 1 : 0);
           break;
@@ -102,10 +149,7 @@ export class TableComponent {
   onKeyDown(
     event: KeyboardEvent,
     cat: Category,
-    // monthIdx: number,
     target: EventTarget | null,
-    // rowIdx: number,
-    // isSubcategory: boolean = false,
     parentIdx?: number
   ) {
     if (!target || !(target instanceof HTMLInputElement) || parentIdx === undefined) return;
@@ -160,8 +204,8 @@ export class TableComponent {
   }
 
   private calculateMaxRow(): number {
-    const incomeRows = this.service.incomeCategories().reduce((sum, cat) => sum + 1 + cat.subcategories.length, 0);
-    const expenseRows = this.service.expenseCategories().reduce((sum, cat) => sum + 1 + cat.subcategories.length, 0);
+    const incomeRows = this.service.incomeCategories().reduce((sum, cat) => sum + 1 + cat.subcategories().length, 0);
+    const expenseRows = this.service.expenseCategories().reduce((sum, cat) => sum + 1 + cat.subcategories().length, 0);
     return incomeRows + expenseRows - 1;
   }
 
@@ -177,37 +221,5 @@ export class TableComponent {
       input => parseInt(input.dataset['row'] || '0') === row && parseInt(input.dataset['col'] || '0') === col
     );
     if (target) target.focus();
-  }
-
-  onRightClick(event: MouseEvent, cat: Category, monthIdx: number) {
-    event.preventDefault();
-    this.showContextMenu = true;
-    this.contextMenuX = event.clientX;
-    this.contextMenuY = event.clientY;
-    this.selectedCategory = cat;
-    this.selectedMonthIndex = monthIdx;
-  }
-
-  applyToAll() {
-    const value = this.selectedCategory.values()[this.selectedMonthIndex];
-    this.selectedCategory.values.update(values => {
-      const newValues = values.slice();
-      newValues.fill(value);
-      return newValues;
-    });
-    this.showContextMenu = false;
-  }
-
-  closeContextMenu() {
-    this.showContextMenu = false;
-  }
-
-  updateValues(cat: Category, index: number, value: number) {
-    const parsedValue = isNaN(value) ? 0 : value; 
-    cat.values.update(values => {
-      const newValues = [...values];
-      newValues[index] = parsedValue;
-      return newValues;
-    });
   }
 }
