@@ -48,13 +48,13 @@
         <td class="border p-2">
           @if (i === 0 && j === 0) {
           <input type="number" [(ngModel)]="cat.values()[j]" (ngModelChange)="updateValues(cat, j, $event)"
-            (keydown)="onKeyDown($event, cat, $event.target, i)"
-            (contextmenu)="onRightClick($event, cat, j)" [attr.data-row]="getRowIndex(i)" [attr.data-col]="j"
-            #firstInput class="w-full p-1 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+            (keydown)="onKeyDown($event, cat, $event.target, i)" (contextmenu)="onRightClick($event, cat, j)"
+            [attr.data-row]="getRowIndex(i)" [attr.data-col]="j" #firstInput
+            class="w-full p-1 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
           } @else {
           <input type="number" [(ngModel)]="cat.values()[j]" (ngModelChange)="updateValues(cat, j, $event)"
-            (keydown)="onKeyDown($event, cat, $event.target, i)"
-            (contextmenu)="onRightClick($event, cat, j)" [attr.data-row]="getRowIndex(i)" [attr.data-col]="j"
+            (keydown)="onKeyDown($event, cat, $event.target, i)" (contextmenu)="onRightClick($event, cat, j)"
+            [attr.data-row]="getRowIndex(i)" [attr.data-col]="j"
             class="w-full p-1 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
           }
         </td>
@@ -70,13 +70,24 @@
         @for (val of sub.values(); track $index; let j = $index) {
         <td class="border p-2">
           <input type="number" [(ngModel)]="sub.values()[j]" (ngModelChange)="updateValues(sub, j, $event)"
-            (keydown)="onKeyDown($event, cat, $event.target, i)"
-            (contextmenu)="onRightClick($event, sub, j)" [attr.data-row]="getRowIndex(i, k, true)" [attr.data-col]="j"
+            (keydown)="onKeyDown($event, cat, $event.target, i)" (contextmenu)="onRightClick($event, sub, j)"
+            [attr.data-row]="getRowIndex(i, k, true)" [attr.data-col]="j"
             class="w-full p-1 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
         </td>
         }
       </tr>
       }
+      <tr>
+        <td class="border p-2">
+          <button (click)="service.addSubcategory(cat, 'New Income SubCategory')"
+            class="text-blue-500 hover:text-blue-700 flex items-center">
+            <span class="mr-1">+</span> Add SubCategory
+          </button>
+        </td>
+        @for (month of service.months(); track month) {
+        <td class="border p-2"></td>
+        }
+      </tr>
       <tr class="bg-gray-200 font-semibold">
         <td class="border p-2 text-gray-700">Sub Total</td>
         @for (total of cat.total(); track $index) {
@@ -119,8 +130,7 @@
         @for (val of cat.values(); track $index; let j = $index) {
         <td class="border p-2">
           <input type="number" [(ngModel)]="cat.values()[j]" (ngModelChange)="updateValues(cat, j, $event)"
-            (keydown)="onKeyDown($event, cat, $event.target, i)"
-            (contextmenu)="onRightClick($event, cat, j)"
+            (keydown)="onKeyDown($event, cat, $event.target, i)" (contextmenu)="onRightClick($event, cat, j)"
             [attr.data-row]="getRowIndex(i + service.incomeCategories().length)" [attr.data-col]="j"
             class="w-full p-1 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
         </td>
@@ -136,14 +146,24 @@
         @for (val of sub.values(); track $index; let j = $index) {
         <td class="border p-2">
           <input type="number" [(ngModel)]="sub.values()[j]" (ngModelChange)="updateValues(sub, j, $event)"
-            (keydown)="onKeyDown($event, cat, $event.target, i)"
-            (contextmenu)="onRightClick($event, sub, j)"
+            (keydown)="onKeyDown($event, cat, $event.target, i)" (contextmenu)="onRightClick($event, sub, j)"
             [attr.data-row]="getRowIndex(i + service.incomeCategories().length, k, true)" [attr.data-col]="j"
             class="w-full p-1 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
         </td>
         }
       </tr>
       }
+      <tr>
+        <td class="border p-2">
+          <button (click)="service.addSubcategory(cat, 'New expense SubCategory')"
+            class="text-blue-500 hover:text-blue-700 flex items-center">
+            <span class="mr-1">+</span> Add SubCategory
+          </button>
+        </td>
+        @for (month of service.months(); track month) {
+        <td class="border p-2"></td>
+        }
+      </tr>
       <tr class="bg-gray-200 font-semibold">
         <td class="border p-2 text-gray-700">Sub Total</td>
         @for (total of cat.total(); track $index) {
